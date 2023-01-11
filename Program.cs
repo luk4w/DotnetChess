@@ -4,7 +4,10 @@
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            ConsoleGame game = new ConsoleGame();
+            game.Run();
+            
+            Console.ReadKey();
         }
     }
 }
