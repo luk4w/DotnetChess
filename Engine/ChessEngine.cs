@@ -25,10 +25,9 @@ namespace Engine
 
         private void PlaceDefaultPieces()
         {
+            // Black pieces
             for (int j = 0; j < Board.GetLength(1); j++)
-            {
                 Board[1, j] = new Pawn(ChessColor.Black, Board);
-            }
 
             Board[0, 0] = new Rook(ChessColor.Black, Board);
             Board[0, 7] = new Rook(ChessColor.Black, Board);
@@ -42,17 +41,26 @@ namespace Engine
             Board[0, 3] = new Queen(ChessColor.Black, Board);
             Board[0, 4] = new King(ChessColor.Black, Board);
 
-            for (int i = 0; i < Board.GetLength(0); i++)
-            {
-                for (int j = 0; j < Board.GetLength(0); j++)
-                {
-                    if(Board[i, j] == null)
-                    {
-                        Board[i, j] = new Empty(ChessColor.White, Board);
-                    }
-                }
-            }
+            // Empty squares
+            for (int i = 2; i < 6; i++)
+                for (int j = 0; j < Board.GetLength(1); j++)
+                    Board[i, j] = new Empty(ChessColor.White, Board);
 
+            // White Pieces
+            for (int j = 0; j < Board.GetLength(1); j++)
+                Board[6, j] = new Pawn(ChessColor.White, Board);
+
+            Board[7, 0] = new Rook(ChessColor.White, Board);
+            Board[7, 7] = new Rook(ChessColor.White, Board);
+
+            Board[7, 1] = new Knight(ChessColor.White, Board);
+            Board[7, 6] = new Knight(ChessColor.White, Board);
+
+            Board[7, 2] = new Bishop(ChessColor.White, Board);
+            Board[7, 5] = new Bishop(ChessColor.White, Board);
+
+            Board[7, 3] = new Queen(ChessColor.White, Board);
+            Board[7, 4] = new King(ChessColor.White, Board);
         }
 
         public void Exit()
@@ -64,9 +72,13 @@ namespace Engine
         {
             while (IsRunning)
             {
-                SelectPiece();
-                MovePiece();
                 Update();
+
+                SelectPiece();
+                Update();
+
+                MovePiece();
+
             }
         }
 

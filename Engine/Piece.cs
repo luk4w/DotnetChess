@@ -5,7 +5,7 @@ namespace Engine
 {
     public abstract class Piece
     {
-        private ChessColor Color;
+        public ChessColor Color;
         private Piece[,] Board;
 
         public Piece(ChessColor color, ref Piece[,] board)
