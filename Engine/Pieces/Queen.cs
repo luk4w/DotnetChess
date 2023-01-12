@@ -9,7 +9,8 @@ namespace Pieces
 
         public override bool[,] GetMoves(Position from)
         {
-            throw new NotImplementedException();
+            bool [,] moves = new bool[8,8];
+            return moves;
         }
 
         public override string ToString()
