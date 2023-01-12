@@ -12,7 +12,7 @@ namespace DotnetChess
             RunEngine();
         }
 
-        public override void SelectPiece()
+        public override void SelectInput()
         {
             Console.Write("Choose a piece: ");
             string? choice = Console.ReadLine();
@@ -22,7 +22,7 @@ namespace DotnetChess
             else return;
         }
 
-        public override void MovePiece()
+        public override void MoveInput()
         {
 
         }
