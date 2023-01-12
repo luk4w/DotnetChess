@@ -5,7 +5,7 @@ namespace Pieces
 {
     public class Pawn : Piece
     {
-        public Pawn(ChessColor color, ref Piece[,] board) : base(color, ref board) { }
+        public Pawn(ChessColor color, Piece[,] board) : base(color, ref board) { }
         
         public override bool[,] GetMoves(Position from)
         {

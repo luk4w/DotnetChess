@@ -6,7 +6,7 @@ namespace Pieces
 {
     public class Empty : Piece
     {
-        public Empty(ChessColor color, ref Piece[,] board) : base(color, ref board) { }
+        public Empty(ChessColor color, Piece[,] board) : base(color, ref board) { }
 
         public override void Move(Position from, Position to)
         {

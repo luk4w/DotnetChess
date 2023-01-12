@@ -5,7 +5,7 @@ namespace Pieces
 {
     public class Bishop : Piece
     {
-        public Bishop(ChessColor color, ref Piece[,] board) : base(color, ref board) {}
+        public Bishop(ChessColor color, Piece[,] board) : base(color, ref board) {}
 
         public override bool[,] GetMoves(Position from)
         {

@@ -5,7 +5,7 @@ namespace Pieces
 {
     public class Knight : Piece
     {
-        public Knight(ChessColor color, ref Piece[,] board) : base(color, ref board) { }
+        public Knight(ChessColor color, Piece[,] board) : base(color, ref board) { }
 
         public override bool[,] GetMoves(Position from)
         {
