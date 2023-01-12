@@ -12,19 +12,29 @@ namespace DotnetChess
             RunEngine();
         }
 
-        public override void SelectInput()
+        public override Position? SelectInput()
         {
-            Console.Write("Choose a piece: ");
+            Console.Write("Select the piece: ");
             string? choice = Console.ReadLine();
 
             if (!String.IsNullOrEmpty(choice))
-                Selected = StringToPosition(choice);
-            else return;
+                return StringToPosition(choice);
+            return null;
         }
 
-        public override void MoveInput()
+        public override Position? MoveInput()
         {
+            Console.Write("Move to:");
+            string? choice = Console.ReadLine();
+            if (!String.IsNullOrEmpty(choice))
+                return StringToPosition(choice);
+            return null;
+        }
 
+        public override void ShowLegalMoves(bool[,] legalMoves)
+        {
+            Console.Clear();
+            PrintLegalMoves(legalMoves);
         }
 
         public override void UpdateBoard()
@@ -49,6 +59,52 @@ namespace DotnetChess
             return new Position(x, y);
         }
 
+        private void PrintLegalMoves(bool[,] availableMoves)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkGray;
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                Console.Write($" {8 - i} ");
+                for (int j = 0; j < 8; j++)
+                {
+                    if (i % 2 == 0 && j % 2 != 0 || i % 2 != 0 && j % 2 == 0)
+                        Console.BackgroundColor = ConsoleColor.DarkBlue;
+                    else
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+
+                    if (availableMoves[i, j] == true)
+                    {
+                        if (Board[i, j] is Empty)
+                            Console.BackgroundColor = ConsoleColor.DarkGreen;
+                        else
+                            Console.BackgroundColor = ConsoleColor.Red;
+                    }
+
+                    if (Board[i, j] is not Empty)
+                        if (Board[i, j].Color == ChessColor.White)
+                        {
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.Write($" {Board[i, j].ToString()} ");
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.Write($" {Board[i, j].ToString()} ");
+                        }
+                    else
+                        Console.Write("   ");
+
+                }
+                Console.WriteLine();
+            }
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine("    a  b  c  d  e  f  g  h ");
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
         public override string ToString()
         {
             for (int i = 0; i < 8; i++)
@@ -64,7 +120,7 @@ namespace DotnetChess
                         Console.BackgroundColor = ConsoleColor.DarkGray;
 
                     if (Board[i, j] is not Empty)
-                        if(Board[i, j].Color == ChessColor.White)
+                        if (Board[i, j].Color == ChessColor.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
                             Console.Write($" {Board[i, j].ToString()} ");
