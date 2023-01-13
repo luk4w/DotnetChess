@@ -11,7 +11,7 @@ namespace Engine
         private Position? Selected { get; set; }
         protected bool[,] AvailableMoves { get; set; }
         private bool IsRunning { get; set; }
-        private ChessColor PlayerTurn { get; set; }
+        private ChessColor PlayerTurnColor { get; set; }
         private Position[] KingPositions { get; set; }
 
         public ChessEngine()
@@ -19,7 +19,7 @@ namespace Engine
             Board = new Piece[8, 8];
             PlaceDefaultPieces();
             Selected = null;
-            PlayerTurn = ChessColor.White;
+            PlayerTurnColor = ChessColor.White;
             AvailableMoves = new bool[8, 8];
             KingPositions = new Position[2] { new Position(7, 4), new Position(0, 4) };
         }
@@ -34,42 +34,54 @@ namespace Engine
             Array.Clear(AvailableMoves);
             if (Selected != null)
             {
-                Position pos = Selected;
-                if (Board[pos.X, pos.Y] is Empty)
-                    throw new ChessEngineException("Empty square moved!");
-
-                Piece p = Board[pos.X, pos.Y];
-                bool[,] unfilteredMoves = p.GetMoves(pos);
-                ChessColor opponentColor = p.Color == ChessColor.White ? ChessColor.Black : ChessColor.White;
-                Position kingPos = p.Color == ChessColor.White ? KingPositions[0] : KingPositions[1];
-
-                for (int i = 0; i < Board.GetLength(0); i++)
+                if (Board[Selected.X, Selected.Y].Color == PlayerTurnColor)
                 {
-                    for (int j = 0; j < Board.GetLength(1); j++)
+                    Position pos = Selected;
+                    if (Board[pos.X, pos.Y] is Empty)
+                        throw new ChessEngineException("Empty square moved!");
+
+                    Piece selectedPiece = Board[pos.X, pos.Y];
+                    bool[,] unfilteredMoves = selectedPiece.GetMoves(pos);
+                    ChessColor opponentColor = selectedPiece.Color == ChessColor.White ? ChessColor.Black : ChessColor.White;
+                    Position kingPos = selectedPiece.Color == ChessColor.White ? KingPositions[0] : KingPositions[1];
+
+                    for (int i = 0; i < Board.GetLength(0); i++)
                     {
-                        if (Board[i, j] is not Empty && Board[i, j].Color == opponentColor && unfilteredMoves[i, j])
+                        for (int j = 0; j < Board.GetLength(1); j++)
                         {
-                            // Move temporarily
-                            Board[i, j].Move(pos, new Position(i, j));
+                            if (Board[i, j] is not Empty && Board[i, j].Color == opponentColor && unfilteredMoves[i, j])
+                            {
+                                if (selectedPiece is not King)
+                                {
+                                    // Move temporarily
+                                    Board[i, j].Move(pos, new Position(i, j));
 
-                            bool[,] opponentMoves = Board[i, j].GetMoves(new Position(i, j));
-                            if (opponentMoves[kingPos.X, kingPos.Y] == false)
-                                AvailableMoves[i, j] = true;
+                                    bool[,] opponentMoves = Board[i, j].GetMoves(new Position(i, j));
+                                    if (opponentMoves[kingPos.X, kingPos.Y] == false)
+                                        AvailableMoves[i, j] = true;
 
-                            // Undo move
-                            Board[i, j].Move(new Position(i, j), pos);
+                                    // Undo move
+                                    Board[i, j].Move(new Position(i, j), pos);
+                                }
+                                else
+                                {
+                                    bool[,] opponentMoves = Board[i, j].GetMoves(new Position(i, j));
+                                    if (opponentMoves[pos.X, pos.Y] == false)
+                                        AvailableMoves[i, j] = true;
+                                }
+                            }
                         }
                     }
-                }
 
-                foreach (bool available in AvailableMoves)
-                    if (available) return;
+                    foreach (bool available in AvailableMoves)
+                        if (available) return;
+                }
 
                 // No moves available
                 PlayTurn();
             }
             else
-                throw new ChessEngineException("The piece was not been selected!");
+                throw new ChessEngineException("Null piece position!");
         }
 
         public void StopEngine()
@@ -89,7 +101,7 @@ namespace Engine
 
         public void Update()
         {
-             UpdateBoard();
+            UpdateBoard();
         }
 
         private void PlayTurn()
@@ -106,10 +118,19 @@ namespace Engine
             if (moveTo != null && Selected != null)
             {
                 if (AvailableMoves[moveTo.X, moveTo.Y] == true)
+                {
                     Board[Selected.X, Selected.X].Move(Selected, moveTo);
+
+                    // Update king position
+                    if (Board[Selected.X, Selected.X] is King)
+                    {
+                        int index = Board[Selected.X, Selected.X].Color == ChessColor.White ? 0 : 1;
+                        KingPositions[index] = moveTo;
+                    }
+                }
                 else
                     PlayTurn();
-            }      
+            }
             else
                 throw new ChessEngineException("Null position");
         }
@@ -117,7 +138,7 @@ namespace Engine
         private void EndTurn()
         {
             Selected = null;
-            PlayerTurn = PlayerTurn == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             Update();
         }
 
