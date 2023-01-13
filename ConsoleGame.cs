@@ -14,7 +14,7 @@ namespace DotnetChess
 
         public override Position? SelectInput()
         {
-            Console.Write("Select the piece: ");
+            Console.Write("Choose piece: ");
             string? choice = Console.ReadLine();
 
             if (!String.IsNullOrEmpty(choice))
