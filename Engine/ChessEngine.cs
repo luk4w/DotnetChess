@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Enums;
 using Pieces;
 
@@ -33,6 +34,7 @@ namespace Engine
                 bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
                 Position kingPos = Board.OnSelectedKingPosition();
                 Position pos = Board.OnSelectedPosition();
+                int availableCount = 0;
                 for (int i = 0; i < 8; i++)
                 {
                     for (int j = 0; j < 8; j++)
@@ -54,18 +56,23 @@ namespace Engine
                             Board.MoveOnSelectedPiece(i, j);
 
                             opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
-                            AvailableMoves[i, j] = opponentMoves[kingPos.X, kingPos.Y] == false;
+
+                            if (opponentMoves[kingPos.X, kingPos.Y] == false)
+                            {
+                                availableCount++;
+                                AvailableMoves[i, j] = true;
+                            }
+
 
                             Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
 
                             if (captured)
                                 Board.RestoreCapturedPiece(i, j);
-
                         }
                     }
                 }
-                foreach (bool available in AvailableMoves)
-                    if (available) return true;
+                if (availableCount > 0)
+                    return true;
             }
             PlayTurn();
             return false;
@@ -96,9 +103,13 @@ namespace Engine
 
         private void PlayTurn(Position? selectPiece)
         {
+            Array.Clear(AvailableMoves);
+            ShowLegalMoves(AvailableMoves);
+
             if (selectPiece == null)
                 Board.SelectPiece(SelectInput(PlayerTurnColor));
 
+            //Debug.WriteLine($"{Board.OnSelectedPosition()}");
             if (SetAvailableMoves())
             {
                 ShowLegalMoves(AvailableMoves);
@@ -109,21 +120,18 @@ namespace Engine
                 }
                 else if (Board.GetPieceColor(moveTo) == PlayerTurnColor)
                 {
-                    Array.Clear(AvailableMoves);
                     Board.SelectPiece(moveTo);
                     PlayTurn(moveTo);
                 }
                 else
                 {
-                    Array.Clear(AvailableMoves);
                     PlayTurn();
                 }
             }
         }
 
         private void EndTurn()
-        {   
-            Array.Clear(AvailableMoves);
+        {
             Board.DeselectPiece();
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             Update();
