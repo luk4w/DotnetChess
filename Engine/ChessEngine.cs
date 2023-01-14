@@ -110,13 +110,19 @@ namespace Engine
                 else if (Board.GetPieceColor(moveTo) == PlayerTurnColor)
                 {
                     Array.Clear(AvailableMoves);
+                    Board.SelectPiece(moveTo);
+                    PlayTurn(moveTo);
+                }
+                else
+                {
+                    Array.Clear(AvailableMoves);
                     PlayTurn();
                 }
             }
         }
 
         private void EndTurn()
-        {
+        {   
             Array.Clear(AvailableMoves);
             Board.DeselectPiece();
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
