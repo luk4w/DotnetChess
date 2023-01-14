@@ -7,7 +7,7 @@ namespace Engine
     {
         public ChessColor Color { get; private set; }
         protected Piece[,] Board { get; private set; }
-        public int MoveCount { protected get; set; }
+        public int MoveCount { get; set; }
 
         public Piece(ChessColor color, ref Piece[,] board)
         {

@@ -121,6 +121,7 @@ namespace Engine
 
                 SelectedPiece = Matrix[to.X, to.Y];
                 SelectedPosition = to;
+                SelectedPiece.MoveCount++;
 
                 return true;
             }

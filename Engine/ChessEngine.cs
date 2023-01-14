@@ -63,7 +63,6 @@ namespace Engine
                                 AvailableMoves[i, j] = true;
                             }
 
-
                             Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
 
                             if (captured)

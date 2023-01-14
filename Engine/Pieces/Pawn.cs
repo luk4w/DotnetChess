@@ -11,34 +11,34 @@ namespace Pieces
         public override bool[,] GetMoves(Position from)
         {
             bool[,] moves = new bool[8, 8];
-            int direction = this.Color == ChessColor.White ? -1 : 1;
+            int dir = this.Color == ChessColor.White ? -1 : 1;
             int row = from.X;
             int col = from.Y;
 
-            // Up
-            if (row + direction >= 0 && row + direction < moves.GetLength(0))
+            // N and S
+            if (row + dir >= 0 && row + dir < moves.GetLength(0))
             {
-                if (Board[row + direction, col] is Empty)
+                if (Board[row + dir, col] is Empty)
                 {
-                    moves[row + direction, col] = true;
+                    moves[row + dir, col] = true;
                     // Move two squares
-                    if (Board[row + (direction * 2), col] is Empty && MoveCount == 0)
-                        moves[row + (direction * 2), col] = true; 
+                    if (Board[row + (dir * 2), col] is Empty && MoveCount == 0)
+                        moves[row + (dir * 2), col] = true;
                 }
             }
 
-            // Verifica se a posição diagonal esquerda do peão está dentro do tabuleiro
-            if (row + direction >= 0 && row + direction < moves.GetLength(0) && col - 1 >= 0)
+            // NW and SW
+            if (row + dir >= 0 && row + dir < moves.GetLength(0) && col - 1 >= 0)
             {
-                // Marca a posição diagonal esquerda do peão como não válida
-                moves[row + direction, col - 1] = false;
+                if (Board[row + dir, col - 1] is not Empty && Board[row + dir, col - 1].Color != Color)
+                    moves[row + dir, col - 1] = true;
             }
 
-            // Verifica se a posição diagonal direita do peão está dentro do tabuleiro
-            if (row + direction >= 0 && row + direction < moves.GetLength(0) && col + 1 < moves.GetLength(1))
+            // NE and SE
+            if (row + dir >= 0 && row + dir < 8 && col + 1 < moves.GetLength(1))
             {
-                // Marca a posição diagonal direita do peão como não válida
-                moves[row + direction, col + 1] = false;
+                if (Board[row + dir, col + 1] is not Empty && Board[row + dir, col + 1].Color != Color)
+                    moves[row + dir, col + 1] = true;
             }
 
             return moves;
