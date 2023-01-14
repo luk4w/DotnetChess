@@ -12,9 +12,9 @@ namespace DotnetChess
             RunEngine();
         }
 
-        public override Position SelectInput()
+        public override Position SelectInput(ChessColor playerTurnColor)
         {
-            Console.Write("Choose piece: ");
+            Console.Write($"{playerTurnColor}; Choose a valid piece: ");
             string? choice = Console.ReadLine();
             if (!String.IsNullOrEmpty(choice))
                 return StringToPosition(choice);

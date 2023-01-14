@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Enums;
-using Exceptions;
 using Pieces;
 
 namespace Engine
@@ -26,7 +24,7 @@ namespace Engine
             Loop();
         }
 
-        private void SetAvailableMoves()
+        private bool SetAvailableMoves()
         {
             Array.Clear(AvailableMoves);
             if (Board.OnSelectedPiece() is not Empty && Board.OnSelectedPiece().Color == PlayerTurnColor && Board.OnSelectedPosition() != null)
@@ -43,7 +41,7 @@ namespace Engine
                         {
                             Board.RemoveOnSelectedPiece();
                             bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
-                            if(opponentMoves[kingPos.X,kingPos.Y])
+                            if (opponentMoves[kingPos.X, kingPos.Y])
                             {
                                 Array.Clear(AvailableMoves);
                                 break;
@@ -55,20 +53,22 @@ namespace Engine
 
                             Board.MoveOnSelectedPiece(i, j);
 
-                            bool[,] opponentMoves2 = Board.GetAllOpponentMoves(PlayerTurnColor);
-                            AvailableMoves[i, j] = opponentMoves2[kingPos.X, kingPos.Y] == false;
+                            opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+                            AvailableMoves[i, j] = opponentMoves[kingPos.X, kingPos.Y] == false;
 
                             Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
-                            
+
                             if (captured)
                                 Board.RestoreCapturedPiece(i, j);
+
                         }
                     }
                 }
                 foreach (bool available in AvailableMoves)
-                    if (available) return;
+                    if (available) return true;
             }
             PlayTurn();
+            return false;
         }
 
 
@@ -92,24 +92,38 @@ namespace Engine
             UpdateBoard();
         }
 
-        private void PlayTurn()
+        private void PlayTurn() => PlayTurn(null);
+
+        private void PlayTurn(Position? selectPiece)
         {
-            Board.SelectPiece(SelectInput());
+            if (selectPiece == null)
+                Board.SelectPiece(SelectInput(PlayerTurnColor));
 
-            SetAvailableMoves();
-            ShowLegalMoves(AvailableMoves);
-
-            Board.MoveOnSelectedPiece(MoveInput());
+            if (SetAvailableMoves())
+            {
+                ShowLegalMoves(AvailableMoves);
+                Position moveTo = MoveInput();
+                if (AvailableMoves[moveTo.X, moveTo.Y] == true)
+                {
+                    Board.MoveOnSelectedPiece(moveTo);
+                }
+                else if (Board.GetPieceColor(moveTo) == PlayerTurnColor)
+                {
+                    Array.Clear(AvailableMoves);
+                    PlayTurn();
+                }
+            }
         }
 
         private void EndTurn()
         {
+            Array.Clear(AvailableMoves);
             Board.DeselectPiece();
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             Update();
         }
 
-        public abstract Position SelectInput();
+        public abstract Position SelectInput(ChessColor playerTurnColor);
         public abstract Position MoveInput();
         public abstract void ShowLegalMoves(bool[,] legalMoves);
         public abstract void UpdateBoard();
