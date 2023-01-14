@@ -12,23 +12,22 @@ namespace DotnetChess
             RunEngine();
         }
 
-        public override Position? SelectInput()
+        public override Position SelectInput()
         {
             Console.Write("Choose piece: ");
             string? choice = Console.ReadLine();
-
             if (!String.IsNullOrEmpty(choice))
                 return StringToPosition(choice);
-            return null;
+            throw new Exception("Null position!");
         }
 
-        public override Position? MoveInput()
+        public override Position MoveInput()
         {
-            Console.Write("Move to:");
+            Console.Write("Move to: ");
             string? choice = Console.ReadLine();
             if (!String.IsNullOrEmpty(choice))
                 return StringToPosition(choice);
-            return null;
+            throw new Exception("Null position!");
         }
 
         public override void ShowLegalMoves(bool[,] legalMoves)
@@ -75,22 +74,22 @@ namespace DotnetChess
 
                     if (availableMoves[i, j] == true)
                     {
-                        if (Board[i, j] is Empty)
+                        if (Board.GetPiece(i,j) is Empty)
                             Console.BackgroundColor = ConsoleColor.DarkGreen;
                         else
                             Console.BackgroundColor = ConsoleColor.Red;
                     }
 
-                    if (Board[i, j] is not Empty)
-                        if (Board[i, j].Color == ChessColor.White)
+                    if (Board.GetPiece(i,j) is not Empty)
+                        if (Board.GetPiece(i,j).Color == ChessColor.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write($" {Board[i, j].ToString()} ");
+                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($" {Board[i, j].ToString()} ");
+                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
                         }
                     else
                         Console.Write("   ");
@@ -119,16 +118,16 @@ namespace DotnetChess
                     else
                         Console.BackgroundColor = ConsoleColor.DarkGray;
 
-                    if (Board[i, j] is not Empty)
-                        if (Board[i, j].Color == ChessColor.White)
+                    if (Board.GetPiece(i,j) is not Empty)
+                        if (Board.GetPiece(i,j).Color == ChessColor.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write($" {Board[i, j].ToString()} ");
+                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($" {Board[i, j].ToString()} ");
+                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
                         }
                     else
                         Console.Write("   ");

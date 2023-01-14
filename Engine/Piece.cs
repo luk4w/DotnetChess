@@ -5,8 +5,9 @@ namespace Engine
 {
     public abstract class Piece
     {
-        public ChessColor Color;
-        private Piece[,] Board;
+        public ChessColor Color { get; private set; }
+        protected Piece[,] Board { get; private set; }
+        public int MoveCount { protected get; set; }
 
         public Piece(ChessColor color, ref Piece[,] board)
         {
