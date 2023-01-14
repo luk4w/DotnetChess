@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Enums;
 using Exceptions;
 using Pieces;
@@ -24,10 +23,8 @@ namespace Engine
             SelectedPiece = EmptySquare;
             LastRemovedPiece = EmptySquare;
             KingPositions = new Position[2] { new Position(7, 4), new Position(0, 4) };
-            SelectedPosition = new Position(8, 8); // Overflow position
+            SelectedPosition = new Position(8, 8); // Overflow initial position
         }
-
-
 
         public Piece OnSelectedPiece() => SelectedPiece;
         public Position OnSelectedPosition() => SelectedPosition;
@@ -46,7 +43,7 @@ namespace Engine
         public void DeselectPiece()
         {
             SelectedPiece = EmptySquare;
-            SelectedPosition = new Position(8, 8);
+            SelectedPosition = new Position(8, 8); // Overflow initial position
         }
 
         public Piece GetPiece(int row, int col) => Matrix[row, col];
@@ -66,8 +63,6 @@ namespace Engine
 
         public Position OnSelectedKingPosition() => SelectedPiece.Color == ChessColor.White ? KingPositions[0] : KingPositions[1];
 
-
-
         public void RestoreOnSelectedPiece() => Matrix[SelectedPosition.X, SelectedPosition.Y] = LastRemovedPiece;
 
         public void RemoveOnSelectedPiece()
@@ -76,10 +71,30 @@ namespace Engine
             Matrix[SelectedPosition.X, SelectedPosition.Y] = EmptySquare;
         }
 
-        public Piece GetLastRemovedPiece()
+        public bool[,] GetAllOpponentMoves(ChessColor turnColor)
         {
-            return LastRemovedPiece;
+            bool[,] result = new bool[8, 8];
+            for (int i = 0; i < 8; i++)
+                for (int j = 0; j < 8; j++)
+                {
+                    if (GetPiece(i, j) is not Empty && GetPieceColor(i, j) != turnColor)
+                    {
+                        bool[,] temp = GetPieceMoves(i, j);
+                        // Merge
+                        for (int row = 0; row < 8; row++)
+                        {
+                            for (int col = 0; col < 8; col++)
+                            {
+                                if (temp[row, col] == true)
+                                    result[row, col] = true;
+                            }
+                        }
+                    }
+                }
+            return result;
         }
+
+        public Piece GetLastRemovedPiece() => LastRemovedPiece;
 
         public void MoveOnSelectedPiece(int row, int col) => MoveOnSelectedPiece(new Position(row, col));
 
@@ -90,25 +105,23 @@ namespace Engine
         }
 
         private void RemovePiece(int row, int col) => Matrix[row, col] = EmptySquare;
-        
+
         public void MoveOnSelectedPiece(Position to)
         {
             if (SelectedPiece is not Empty)
             {
-                if(Matrix[to.X, to.Y] is not Empty)
-                {
+                if (Matrix[to.X, to.Y] is not Empty)
                     CapturedPieceList.Add(Matrix[to.X, to.Y]);
-                }
-                
+
                 Matrix[to.X, to.Y] = SelectedPiece;
                 RemovePiece(SelectedPosition.X, SelectedPosition.Y);
-                
+
                 SelectedPiece = Matrix[to.X, to.Y];
                 SelectedPosition = to;
-                
+
             }
-            else 
-                throw new ChessEngineException("Null piece moved!");  
+            else
+                throw new ChessEngineException("Null piece moved!");
         }
 
         public void SetPiece(Piece piece, Position pos) => Matrix[pos.X, pos.Y] = piece;
@@ -129,8 +142,8 @@ namespace Engine
             Matrix[0, 4] = new King(ChessColor.Black, Matrix);
 
             // White Pieces
-            //for (int j = 0; j < Matrix.GetLength(1); j++)
-               // Matrix[6, j] = new Pawn(ChessColor.White, Matrix);
+            for (int j = 0; j < Matrix.GetLength(1); j++)
+                Matrix[6, j] = new Pawn(ChessColor.White, Matrix);
 
             Matrix[7, 0] = new Rook(ChessColor.White, Matrix);
             Matrix[7, 7] = new Rook(ChessColor.White, Matrix);

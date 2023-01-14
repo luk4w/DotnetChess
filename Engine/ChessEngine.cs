@@ -39,34 +39,29 @@ namespace Engine
                 {
                     for (int j = 0; j < 8; j++)
                     {
-                        // Opponent moves
-                        if (Board.GetPiece(i, j) is not Empty && Board.GetPieceColor(i, j) != PlayerTurnColor)
+                        if (unfilteredMoves[i, j])
                         {
-                            bool[,] opponentMoves = Board.GetPieceMoves(new Position(i, j));
                             Board.RemoveOnSelectedPiece();
-
-                            if (opponentMoves[kingPos.X, kingPos.Y] == true)
+                            bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+                            if(opponentMoves[kingPos.X,kingPos.Y])
                             {
                                 Array.Clear(AvailableMoves);
                                 break;
                             }
                             Board.RestoreOnSelectedPiece();
-                        }
 
-                        if (unfilteredMoves[i, j])
-                        {
-                            Debug.WriteLine($"Entoru aq {i} {j}");
+                            // Test moves
                             bool captured = Board.GetPiece(i, j) is not Empty;
+
                             Board.MoveOnSelectedPiece(i, j);
 
-                            
-                            bool[,] opponentMoves2 = Board.GetPieceMoves(new Position(i, j));
+                            bool[,] opponentMoves2 = Board.GetAllOpponentMoves(PlayerTurnColor);
                             AvailableMoves[i, j] = opponentMoves2[kingPos.X, kingPos.Y] == false;
 
-                            Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position 
+                            Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
+                            
                             if (captured)
                                 Board.RestoreCapturedPiece(i, j);
-
                         }
                     }
                 }
