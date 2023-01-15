@@ -79,7 +79,13 @@ namespace Engine
                 {
                     if (GetPiece(i, j) is not Empty && GetPieceColor(i, j) != turnColor)
                     {
-                        bool[,] temp = GetPieceMoves(i, j);
+                        bool[,] temp;
+
+                        if (GetPiece(i, j) is Pawn)
+                            temp = ((Pawn)GetPiece(i, j)).GetAttackMoves(i,j);
+                        else
+                            temp = GetPieceMoves(i,j);
+
                         // Merge
                         for (int row = 0; row < 8; row++)
                         {
@@ -99,7 +105,7 @@ namespace Engine
         public bool MoveOnSelectedPiece(int row, int col)
         {
             return MoveOnSelectedPiece(new Position(row, col));
-        } 
+        }
 
         public void RestoreCapturedPiece(int row, int col)
         {

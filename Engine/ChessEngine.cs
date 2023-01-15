@@ -35,40 +35,74 @@ namespace Engine
                 Position kingPos = Board.OnSelectedKingPosition();
                 Position pos = Board.OnSelectedPosition();
                 int availableCount = 0;
-                for (int i = 0; i < 8; i++)
+                bool[,] opponentMoves;
+
+
+                if (Board.OnSelectedPiece() is King)
                 {
-                    for (int j = 0; j < 8; j++)
-                    {
-                        if (unfilteredMoves[i, j])
+                    Debug.WriteLine("Test:");
+                    opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+
+                    for (int i = 0; i < 8; i++)
+                    {   
+                        Debug.Write($"{8-i} ");
+                        for (int j = 0; j < 8; j++)
                         {
-                            Board.RemoveOnSelectedPiece();
-                            bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
-                            if (opponentMoves[kingPos.X, kingPos.Y])
-                            {
-                                Array.Clear(AvailableMoves);
-                                break;
-                            }
-                            Board.RestoreOnSelectedPiece();
+                            Debug.Write($" {opponentMoves[i,j]} ");
+                        }
+                        Debug.WriteLine("");
+                    }
+                    Debug.WriteLine("End Test:");
 
-                            // Test moves
-                            bool captured = Board.GetPiece(i, j) is not Empty;
-
-                            Board.MoveOnSelectedPiece(i, j);
-
-                            opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
-
-                            if (opponentMoves[kingPos.X, kingPos.Y] == false)
-                            {
-                                availableCount++;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            if (opponentMoves[pos.X, pos.Y] == false)
                                 AvailableMoves[i, j] = true;
-                            }
-
-                            Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
-
-                            if (captured)
-                                Board.RestoreCapturedPiece(i, j);
                         }
                     }
+                }
+                else
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            if (unfilteredMoves[i, j])
+                            {
+                                Board.RemoveOnSelectedPiece();
+
+                                opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+                                if (opponentMoves[kingPos.X, kingPos.Y])
+                                {
+                                    Array.Clear(AvailableMoves);
+                                    Board.RestoreOnSelectedPiece();
+                                    break;
+                                }
+                                Board.RestoreOnSelectedPiece();
+
+                                // Test moves
+                                bool captured = Board.GetPiece(i, j) is not Empty;
+
+                                Board.MoveOnSelectedPiece(i, j);
+
+                                opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+
+                                if (opponentMoves[kingPos.X, kingPos.Y] == false)
+                                {
+                                    availableCount++;
+                                    AvailableMoves[i, j] = true;
+                                }
+
+                                Board.MoveOnSelectedPiece(pos.X, pos.Y); // initial position
+
+                                if (captured)
+                                    Board.RestoreCapturedPiece(i, j);
+                            }
+                        }
+                    }
+
                 }
                 if (availableCount > 0)
                     return true;
