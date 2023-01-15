@@ -16,7 +16,7 @@ namespace Pieces
             // NW and SW
             if (row + dir >= 0 && row + dir < 8 && col - 1 >= 0)
             {
-                if (Board[row + dir, col - 1] is Empty || Board[row + dir, col + 1].Color == Color)
+                if (Board[row + dir, col - 1] is Empty || Board[row + dir, col - 1].Color == Color)
                     atkMoves[row + dir, col - 1] = true;
             }
 
