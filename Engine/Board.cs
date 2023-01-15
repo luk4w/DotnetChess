@@ -102,10 +102,7 @@ namespace Engine
 
         public Piece GetLastRemovedPiece() => LastRemovedPiece;
 
-        public bool MoveOnSelectedPiece(int row, int col)
-        {
-            return MoveOnSelectedPiece(new Position(row, col));
-        }
+        public void MoveOnSelectedPiece(int row, int col) => MoveOnSelectedPiece(new Position(row, col));
 
         public void RestoreCapturedPiece(int row, int col)
         {
@@ -115,7 +112,7 @@ namespace Engine
 
         private void RemovePiece(int row, int col) => Matrix[row, col] = EmptySquare;
 
-        public bool MoveOnSelectedPiece(Position to)
+        public void MoveOnSelectedPiece(Position to)
         {
             if (SelectedPiece is not Empty)
             {
@@ -128,8 +125,6 @@ namespace Engine
                 SelectedPiece = Matrix[to.X, to.Y];
                 SelectedPosition = to;
                 SelectedPiece.MoveCount++;
-
-                return true;
             }
             else
                 throw new ChessEngineException("Null piece moved!");
