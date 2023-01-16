@@ -46,11 +46,11 @@ namespace DotnetChess
         {
             char[] column = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
             if (value.Length != 2)
-                throw new ChessEngineException("Invalid position!");
+                throw new ChessException("Invalid position!");
             else if (int.Parse(value[1].ToString()) < 0 || int.Parse(value[1].ToString()) > 8)
-                throw new ChessEngineException("Invalid row!");
+                throw new ChessException("Invalid row!");
             else if (!column.Contains(value[0]))
-                throw new ChessEngineException("Invalid column!");
+                throw new ChessException("Invalid column!");
 
             int x = 8 - int.Parse(value[1].ToString());
             int y = Array.IndexOf(column, value[0]);
@@ -78,7 +78,7 @@ namespace DotnetChess
                 }
                 return value[0];
             }
-            throw new ChessEngineException("Invalid promotion!");
+            throw new ChessException("Invalid promotion!");
         }
 
         private void PrintLegalMoves(bool[,] availableMoves)

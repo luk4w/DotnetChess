@@ -10,12 +10,12 @@ namespace Pieces
 
         public override void Move(Position from, Position to)
         {
-            throw new ChessEngineException($"Empty square!");
+            throw new ChessException($"Empty square!");
         }
 
         public override bool[,] GetMoves(Position from)
         {
-            throw new ChessEngineException($"Empty square!");
+            throw new ChessException($"Empty square!");
         }
     }
 }

@@ -127,7 +127,7 @@ namespace Source
                 SelectedPiece.MoveCount++;
             }
             else
-                throw new ChessEngineException("Null piece moved!");
+                throw new ChessException("Null piece moved!");
         }
 
         public void SetPiece(Piece piece, Position pos) => Matrix[pos.X, pos.Y] = piece;
