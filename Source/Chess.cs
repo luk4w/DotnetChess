@@ -1,25 +1,23 @@
-using System.Diagnostics;
 using Enums;
 using Pieces;
 
-namespace Engine
+namespace Source
 {
-    public abstract class ChessEngine
+    public abstract class Chess
     {
         protected Board Board;
         protected bool[,] AvailableMoves { get; set; }
         private bool IsRunning { get; set; }
         private ChessColor PlayerTurnColor { get; set; }
 
-
-        public ChessEngine()
+        public Chess()
         {
             Board = new Board();
             PlayerTurnColor = ChessColor.White;
             AvailableMoves = new bool[8, 8];
 
         }
-        public void RunEngine()
+        public void StartGame()
         {
             IsRunning = true;
             Loop();
@@ -39,10 +37,28 @@ namespace Engine
 
                 for (int i = 0; i < 8; i++)
                     for (int j = 0; j < 8; j++)
-                        if (Board.OnSelectedPiece() is King && unfilteredMoves[i, j] == true)
+                        if (Board.OnSelectedPiece() is King)
                         {
-                            AvailableMoves[i, j] = opponentMoves[i, j] == false;
-                            availableCount++;
+                            // Normal moves
+                            if(unfilteredMoves[i, j] == true)
+                            {
+                                AvailableMoves[i, j] = opponentMoves[i, j] == false;
+                                availableCount++;
+                            }
+                            
+                            // Castle
+                            King king = (King)Board.OnSelectedPiece();
+                            if(king.IsKingsideCastle())
+                            {
+                                // The king can not be in check
+                                if(opponentMoves[pos.X, pos.Y] == false)
+                                {
+                                   
+                                }
+                            }
+
+                            // Kingside castle
+                            
                         }
                         else if (unfilteredMoves[i, j])
                         {
@@ -83,7 +99,7 @@ namespace Engine
         }
 
 
-        public void StopEngine()
+        public void StopGame()
         {
             IsRunning = false;
         }
@@ -145,5 +161,6 @@ namespace Engine
         public abstract Position MoveInput();
         public abstract void ShowLegalMoves(bool[,] legalMoves);
         public abstract void UpdateBoard();
+        public abstract char Promote();
     }
 }

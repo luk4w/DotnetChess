@@ -1,15 +1,15 @@
-using Engine;
+using Source;
 using Enums;
 using Exceptions;
 using Pieces;
 
 namespace DotnetChess
 {
-    public class ConsoleGame : ChessEngine
+    public class ConsoleGame : Chess
     {
         public void Run()
         {
-            RunEngine();
+            StartGame();
         }
 
         public override Position SelectInput(ChessColor playerTurnColor)
@@ -58,6 +58,29 @@ namespace DotnetChess
             return new Position(x, y);
         }
 
+        public override char Promote()
+        {
+            char[] pieces = { 'N', 'B', 'R', 'Q' };
+            string? value = null;
+            while (string.IsNullOrEmpty(value) || value.Length != 1)
+            {
+                Console.Write("Promote to: (N, B, R, Q)");
+                value = Console.ReadLine();
+                if (value == null)
+                {
+                    Console.WriteLine($"Null value!");
+                    continue;
+                }
+                else if (!pieces.Contains(value[0])) 
+                {
+                    Console.WriteLine($"Invalid piece value: {value}");
+                    continue;
+                }
+                return value[0];
+            }
+            throw new ChessEngineException("Invalid promotion!");
+        }
+
         private void PrintLegalMoves(bool[,] availableMoves)
         {
             for (int i = 0; i < 8; i++)
@@ -74,22 +97,22 @@ namespace DotnetChess
 
                     if (availableMoves[i, j] == true)
                     {
-                        if (Board.GetPiece(i,j) is Empty)
+                        if (Board.GetPiece(i, j) is Empty)
                             Console.BackgroundColor = ConsoleColor.DarkGreen;
                         else
                             Console.BackgroundColor = ConsoleColor.Red;
                     }
 
-                    if (Board.GetPiece(i,j) is not Empty)
-                        if (Board.GetPiece(i,j).Color == ChessColor.White)
+                    if (Board.GetPiece(i, j) is not Empty)
+                        if (Board.GetPiece(i, j).Color == ChessColor.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
+                            Console.Write($" {Board.GetPiece(i, j).ToString()} ");
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
+                            Console.Write($" {Board.GetPiece(i, j).ToString()} ");
                         }
                     else
                         Console.Write("   ");
@@ -118,20 +141,20 @@ namespace DotnetChess
                     else
                         Console.BackgroundColor = ConsoleColor.DarkGray;
 
-                    if (Board.GetPiece(i,j) is not Empty)
-                        if (Board.GetPiece(i,j).Color == ChessColor.White)
+                    if (Board.GetPiece(i, j) is not Empty)
+                        if (Board.GetPiece(i, j).Color == ChessColor.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
+                            Console.Write($" {Board.GetPiece(i, j).ToString()} ");
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($" {Board.GetPiece(i,j).ToString()} ");
+                            Console.Write($" {Board.GetPiece(i, j).ToString()} ");
                         }
                     else
                         Console.Write("   ");
-                
+
                 }
                 Console.WriteLine();
             }

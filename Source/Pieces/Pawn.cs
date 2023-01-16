@@ -1,5 +1,4 @@
-using System.Diagnostics;
-using Engine;
+using Source;
 using Enums;
 
 namespace Pieces
@@ -8,11 +7,13 @@ namespace Pieces
     {
         public Pawn(ChessColor color, Piece[,] board) : base(color, ref board) { }
 
+        public void Promote(int row, int col, Piece piece) => Board[row, col] = piece;
+
         public bool[,] GetAttackMoves(int row, int col)
         {
             bool[,] atkMoves = new bool[8, 8];
             int dir = this.Color == ChessColor.White ? -1 : 1;
-    
+
             // NW and SW
             if (row + dir >= 0 && row + dir < 8 && col - 1 >= 0)
             {

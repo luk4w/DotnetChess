@@ -2,7 +2,7 @@ using Enums;
 using Exceptions;
 using Pieces;
 
-namespace Engine
+namespace Source
 {
     public class Board
     {
