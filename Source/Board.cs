@@ -124,7 +124,6 @@ namespace Source
 
                 SelectedPiece = Matrix[to.X, to.Y];
                 SelectedPosition = to;
-                SelectedPiece.MoveCount++;
             }
             else
                 throw new ChessException("Null piece moved!");

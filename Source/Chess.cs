@@ -23,7 +23,7 @@ namespace Source
             Loop();
         }
 
-        private bool SetAvailableMoves()
+        private void SetAvailableMoves()
         {
             Array.Clear(AvailableMoves);
             if (Board.OnSelectedPiece() is not Empty && Board.OnSelectedPiece().Color == PlayerTurnColor && Board.OnSelectedPosition() != null)
@@ -32,7 +32,7 @@ namespace Source
                 bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
                 Position kingPos = Board.OnSelectedKingPosition();
                 Position pos = Board.OnSelectedPosition();
-                int availableCount = 0;
+                int availableMovesCount = 0;
                 bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
 
                 for (int i = 0; i < 8; i++)
@@ -40,25 +40,35 @@ namespace Source
                         if (Board.OnSelectedPiece() is King)
                         {
                             // Normal moves
-                            if(unfilteredMoves[i, j] == true)
+                            if (unfilteredMoves[i, j] == true)
                             {
                                 AvailableMoves[i, j] = opponentMoves[i, j] == false;
-                                availableCount++;
+                                availableMovesCount++;
                             }
-                            
+
                             // Castle
                             King king = (King)Board.OnSelectedPiece();
-                            if(king.IsKingsideCastle())
+                            if (king.IsKingsideCastle())
                             {
                                 // The king can not be in check
-                                if(opponentMoves[pos.X, pos.Y] == false)
+                                if (opponentMoves[pos.X, pos.Y] == false)
                                 {
-                                   
+                                    bool available = true;
+                                    for (int col = pos.X + 1; col < pos.X + 2; col++)
+                                    {
+                                        if (opponentMoves[pos.X, col] == true)
+                                        {
+                                            available = false;
+                                            break;
+                                        }
+                                    }
+                                    if (available)
+                                        king.KingsideCaslte();
                                 }
                             }
 
                             // Kingside castle
-                            
+
                         }
                         else if (unfilteredMoves[i, j])
                         {
@@ -82,7 +92,7 @@ namespace Source
 
                             if (opponentMoves[kingPos.X, kingPos.Y] == false)
                             {
-                                availableCount++;
+                                availableMovesCount++;
                                 AvailableMoves[i, j] = true;
                             }
 
@@ -91,11 +101,13 @@ namespace Source
                             if (captured)
                                 Board.RestoreCapturedPiece(i, j);
                         }
-                if (availableCount > 0)
-                    return true;
+                if (availableMovesCount > 0)
+                {
+                    ShowLegalMoves(AvailableMoves);
+                    return;
+                }
             }
             PlayTurn();
-            return false;
         }
 
 
@@ -129,25 +141,24 @@ namespace Source
             if (selectPiece == null)
                 Board.SelectPiece(SelectInput(PlayerTurnColor));
 
-            //Debug.WriteLine($"{Board.OnSelectedPosition()}");
-            if (SetAvailableMoves())
+            SetAvailableMoves();
+            Position moveTo = MoveInput();
+
+            if (AvailableMoves[moveTo.X, moveTo.Y] == true)
             {
-                ShowLegalMoves(AvailableMoves);
-                Position moveTo = MoveInput();
-                if (AvailableMoves[moveTo.X, moveTo.Y] == true)
-                {
-                    Board.MoveOnSelectedPiece(moveTo);
-                }
-                else if (Board.GetPieceColor(moveTo) == PlayerTurnColor)
-                {
-                    Board.SelectPiece(moveTo);
-                    PlayTurn(moveTo);
-                }
-                else
-                {
-                    PlayTurn();
-                }
+                Board.MoveOnSelectedPiece(moveTo);
+                Board.OnSelectedPiece().MoveCount++;
             }
+            else if (Board.GetPiece(moveTo) is not Empty && Board.GetPieceColor(moveTo) == PlayerTurnColor)
+            {
+                Board.SelectPiece(moveTo);
+                PlayTurn(moveTo);
+            }
+            else
+            {
+                PlayTurn();
+            }
+
         }
 
         private void EndTurn()
