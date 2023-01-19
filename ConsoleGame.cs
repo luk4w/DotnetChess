@@ -15,19 +15,39 @@ namespace DotnetChess
         public override Position SelectInput(ChessColor playerTurnColor)
         {
             Console.Write($"{playerTurnColor}; Choose a valid piece: ");
-            string? choice = Console.ReadLine();
-            if (!String.IsNullOrEmpty(choice))
-                return StringToPosition(choice);
-            throw new Exception("Null position!");
+            string? choice = null;
+            while (true)
+            {
+                choice = Console.ReadLine();
+                try
+                {
+                    if (!String.IsNullOrEmpty(choice))
+                        return StringToPosition(choice);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
         }
 
         public override Position MoveInput()
         {
             Console.Write("Move to: ");
-            string? choice = Console.ReadLine();
-            if (!String.IsNullOrEmpty(choice))
-                return StringToPosition(choice);
-            throw new Exception("Null position!");
+            string? choice = null;
+            while (true)
+            {
+                choice = Console.ReadLine();
+                try
+                {
+                    if (!String.IsNullOrEmpty(choice))
+                        return StringToPosition(choice);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
         }
 
         public override void ShowLegalMoves(bool[,] legalMoves)
@@ -71,7 +91,7 @@ namespace DotnetChess
                     Console.WriteLine($"Null value!");
                     continue;
                 }
-                else if (!pieces.Contains(value[0])) 
+                else if (!pieces.Contains(value[0]))
                 {
                     Console.WriteLine($"Invalid piece value: {value}");
                     continue;

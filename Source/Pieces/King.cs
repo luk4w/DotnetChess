@@ -7,6 +7,30 @@ namespace Pieces
     {
         public King(ChessColor color, Piece[,] board) : base(color, ref board) { }
 
+        public void KingsideCastle()
+        {
+            Empty emptySquare = new Empty(ChessColor.White, Board);
+            int row = Color == ChessColor.White ? 7 : 0;
+
+            Board[row, 6] = this;
+            Board[row, 5] = new Rook(Color, Board);
+
+            Board[row, 4] = emptySquare;
+            Board[row, 7] = emptySquare;
+        }
+
+        public void QueensideCastle()
+        {
+            Empty emptySquare = new Empty(ChessColor.White, Board);
+            int row = Color == ChessColor.White ? 7 : 0;
+
+            Board[row, 2] = this;
+            Board[row, 3] = new Rook(Color, Board);
+
+            Board[row, 4] = emptySquare;
+            Board[row, 0] = emptySquare;
+        }
+
         public bool IsQueensideCastle()
         {
             if (MoveCount != 0) return false;
