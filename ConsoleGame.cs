@@ -24,7 +24,7 @@ namespace DotnetChess
                     if (!String.IsNullOrEmpty(choice))
                         return StringToPosition(choice);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
@@ -43,7 +43,7 @@ namespace DotnetChess
                     if (!String.IsNullOrEmpty(choice))
                         return StringToPosition(choice);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
@@ -62,14 +62,16 @@ namespace DotnetChess
             ToString();
         }
 
-        public override void EndGame(bool draw, ChessColor winner)
+        public override void Draw()
         {
-            if(!draw)
-                Console.Write($"Winner: {winner}");
-            else
-                Console.Write("Draw");
+            Console.Write("Draw");
         }
-        
+
+        public override void Winner(ChessColor color)
+        {
+            Console.Write($"Checkmate! {color} wins!");
+        }
+
         public Position StringToPosition(string value)
         {
             char[] column = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
