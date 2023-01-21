@@ -61,7 +61,7 @@ namespace Source
             return SelectedPiece.GetMoves(SelectedPosition);
         }
 
-        public Position OnSelectedKingPosition() => SelectedPiece.Color == ChessColor.White ? KingPositions[0] : KingPositions[1];
+        public Position GetKingPosition(ChessColor color) => color == ChessColor.White ? KingPositions[0] : KingPositions[1];
 
         public void RestoreOnSelectedPiece() => Matrix[SelectedPosition.X, SelectedPosition.Y] = LastRemovedPiece;
 

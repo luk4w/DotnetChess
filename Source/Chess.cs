@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Enums;
 using Pieces;
 
@@ -26,13 +27,11 @@ namespace Source
 
         private void SetAvailableMoves()
         {
-            Array.Clear(AvailableMoves);
-            AvailableCount = 0;
             if (Board.OnSelectedPiece() is not Empty && Board.OnSelectedPiece().Color == PlayerTurnColor && Board.OnSelectedPosition() != null)
             {
 
                 bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
-                Position kingPos = Board.OnSelectedKingPosition();
+                Position kingPos = Board.GetKingPosition(PlayerTurnColor);
                 Position pos = Board.OnSelectedPosition();
                 bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
 
@@ -43,8 +42,19 @@ namespace Source
                             // Normal moves
                             if (unfilteredMoves[i, j] == true)
                             {
-                                AvailableMoves[i, j] = opponentMoves[i, j] == false;
-                                AvailableCount++;
+                                bool captured = Board.GetPiece(i, j) is not Empty;
+                                Board.MoveOnSelectedPiece(i, j);
+                                opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+
+                                if (opponentMoves[i, j] == false)
+                                {
+                                    AvailableCount++;
+                                    AvailableMoves[i, j] = true;
+                                }
+                                Board.MoveOnSelectedPiece(pos.X, pos.Y);
+
+                                if (captured)
+                                    Board.RestoreCapturedPiece(i, j);
                             }
 
                             // Castle
@@ -64,7 +74,10 @@ namespace Source
                                         }
                                     }
                                     if (available)
+                                    {
                                         AvailableMoves[pos.X, pos.Y + 2] = true;
+                                        AvailableCount++;
+                                    }
                                 }
                             }
 
@@ -83,7 +96,10 @@ namespace Source
                                         }
                                     }
                                     if (available)
+                                    {
                                         AvailableMoves[pos.X, pos.Y - 2] = true;
+                                        AvailableCount++;
+                                    }
                                 }
                             }
                         }
@@ -148,30 +164,99 @@ namespace Source
             UpdateBoard();
         }
 
+        private bool IsCheckmate()
+        {
+            Position kingPos = Board.GetKingPosition(PlayerTurnColor);
+            bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+
+            if (opponentMoves[kingPos.X, kingPos.Y] == true)
+            {
+                AvailableCount = 0;
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (Board.GetPieceColor(i, j) == PlayerTurnColor)
+                        {
+                            Board.SelectPiece(i, j);
+                            bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
+                            for (int row = 0; row < unfilteredMoves.GetLength(0); row++)
+                            {
+                                for (int col = 0; col < unfilteredMoves.GetLength(1); col++)
+                                {
+                                    if (Board.OnSelectedPiece() is King && unfilteredMoves[row, col] == true)
+                                    {
+                                        bool captured = Board.GetPiece(row, col) is not Empty;
+                                        Board.MoveOnSelectedPiece(row, col);
+                                        opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+                                        
+                                        // king here
+                                        if (opponentMoves[row, col] == false)
+                                        {
+                                            AvailableCount++;
+                                            AvailableMoves[row, col] = true;
+                                        }
+                                        Board.MoveOnSelectedPiece(i, j);
+
+                                        if (captured)
+                                            Board.RestoreCapturedPiece(row, col);
+                                    }
+                                    // Normal moves
+                                    else if (unfilteredMoves[row, col] == true)
+                                    {
+                                        bool captured = Board.GetPiece(row, col) is not Empty;
+                                        Board.MoveOnSelectedPiece(row, col);
+                                        opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
+
+                                        if (opponentMoves[kingPos.X, kingPos.Y] == false)
+                                        {
+                                            AvailableCount++;
+                                            AvailableMoves[row, col] = true;
+                                        }
+                                        Board.MoveOnSelectedPiece(i, j);
+
+                                        if (captured)
+                                            Board.RestoreCapturedPiece(row, col);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (AvailableCount == 0)
+                    return true;
+            }
+            return false;
+        }
+
         private void PlayTurn() => PlayTurn(null);
 
         private void PlayTurn(Position? selectPiece)
         {
             Array.Clear(AvailableMoves);
+            AvailableCount = 0;
             Board.DeselectPiece();
             ShowLegalMoves(AvailableMoves);
 
             if (selectPiece == null)
                 Board.SelectPiece(SelectInput(PlayerTurnColor));
+            else
+                Board.SelectPiece(selectPiece);
 
             SetAvailableMoves();
-            if(AvailableCount == 0)
-                PlayTurn();
             
+            if (AvailableCount == 0)
+                PlayTurn();
+
             Position moveTo = MoveInput();
 
             if (AvailableMoves[moveTo.X, moveTo.Y] == true)
             {
                 if (Board.OnSelectedPiece() is King)
                 {
-                    if(Board.OnSelectedPosition().Y + 2 == moveTo.Y)
+                    if (Board.OnSelectedPosition().Y + 2 == moveTo.Y)
                         ((King)Board.OnSelectedPiece()).KingsideCastle();
-                    else if(Board.OnSelectedPosition().Y - 2 == moveTo.Y)
+                    else if (Board.OnSelectedPosition().Y - 2 == moveTo.Y)
                         ((King)Board.OnSelectedPiece()).QueensideCastle();
                 }
                 else
@@ -181,7 +266,6 @@ namespace Source
             }
             else if (Board.GetPiece(moveTo) is not Empty && Board.GetPieceColor(moveTo) == PlayerTurnColor)
             {
-                Board.SelectPiece(moveTo);
                 PlayTurn(moveTo);
             }
             else
@@ -193,9 +277,13 @@ namespace Source
 
         private void EndTurn()
         {
-            Board.DeselectPiece();
+
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            if (IsCheckmate())
+                StopGame();
+
             Update();
+            Board.DeselectPiece();
         }
 
         public abstract Position SelectInput(ChessColor playerTurnColor);
