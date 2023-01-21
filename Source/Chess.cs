@@ -157,6 +157,8 @@ namespace Source
                 PlayTurn();
                 EndTurn();
             }
+            ChessColor winner = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            EndGame(false, winner);
         }
 
         public void Update()
@@ -189,7 +191,7 @@ namespace Source
                                         bool captured = Board.GetPiece(row, col) is not Empty;
                                         Board.MoveOnSelectedPiece(row, col);
                                         opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
-                                        
+
                                         // king here
                                         if (opponentMoves[row, col] == false)
                                         {
@@ -244,7 +246,7 @@ namespace Source
                 Board.SelectPiece(selectPiece);
 
             SetAvailableMoves();
-            
+
             if (AvailableCount == 0)
                 PlayTurn();
 
@@ -277,7 +279,6 @@ namespace Source
 
         private void EndTurn()
         {
-
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             if (IsCheckmate())
                 StopGame();
@@ -291,5 +292,6 @@ namespace Source
         public abstract void ShowLegalMoves(bool[,] legalMoves);
         public abstract void UpdateBoard();
         public abstract char Promote();
+        public abstract void EndGame(bool draw, ChessColor winner);
     }
 }

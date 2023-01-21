@@ -62,6 +62,14 @@ namespace DotnetChess
             ToString();
         }
 
+        public override void EndGame(bool draw, ChessColor winner)
+        {
+            if(!draw)
+                Console.Write($"Winner: {winner}");
+            else
+                Console.Write("Draw");
+        }
+        
         public Position StringToPosition(string value)
         {
             char[] column = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
