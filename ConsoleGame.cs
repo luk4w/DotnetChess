@@ -69,7 +69,7 @@ namespace DotnetChess
 
         public override void Winner(ChessColor color)
         {
-            Console.Write($"Checkmate! {color} wins!");
+            Console.Write($"Checkmate! {color} is victorious.");
         }
 
         public Position StringToPosition(string value)

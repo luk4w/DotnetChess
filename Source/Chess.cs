@@ -23,7 +23,6 @@ namespace Source
             State = GameState.Running;
             Loop();
         }
-        private void PlayTurn() => PlayTurn(null);
 
         private void EndTurn()
         {
@@ -39,8 +38,8 @@ namespace Source
             Update();
             while (State == GameState.Running)
             {
-                PlayTurn();
-                EndTurn();
+                if (IsPlayerTurn())
+                    EndTurn();
             }
 
             if (State == GameState.Draw)
@@ -59,42 +58,38 @@ namespace Source
             UpdateBoard();
         }
 
-        private void PlayTurn(Position? selectPiece)
+        private bool IsPlayerTurn()
         {
             Array.Clear(AvailableMoves);
             AvailableCount = 0;
             Board.DeselectPiece();
             ShowLegalMoves(AvailableMoves);
 
-            if (selectPiece == null)
-                Board.SelectPiece(SelectInput(PlayerTurnColor));
-            else
-                Board.SelectPiece(selectPiece);
+            Board.SelectPiece(SelectInput(PlayerTurnColor));
 
-            SetAvailableMoves();
-            Position moveTo = MoveInput();
-
-            if (AvailableMoves[moveTo.X, moveTo.Y] == true)
+            if (SetAvailableMoves())
             {
-                if (Board.OnSelectedPiece() is King)
+                Position moveTo = MoveInput();
+                if (AvailableMoves[moveTo.X, moveTo.Y] == true)
                 {
-                    if (Board.OnSelectedPosition().Y + 2 == moveTo.Y)
-                        ((King)Board.OnSelectedPiece()).KingsideCastle();
-                    else if (Board.OnSelectedPosition().Y - 2 == moveTo.Y)
-                        ((King)Board.OnSelectedPiece()).QueensideCastle();
-                }
-                else
-                    Board.MoveOnSelectedPiece(moveTo);
+                    if (Board.OnSelectedPiece() is King)
+                    {
+                        if (Board.OnSelectedPosition().Y + 2 == moveTo.Y)
+                            ((King)Board.OnSelectedPiece()).KingsideCastle();
+                        else if (Board.OnSelectedPosition().Y - 2 == moveTo.Y)
+                            ((King)Board.OnSelectedPiece()).QueensideCastle();
+                    }
+                    else
+                        Board.MoveOnSelectedPiece(moveTo);
 
-                Board.OnSelectedPiece().MoveCount++;
+                    Board.OnSelectedPiece().MoveCount++;
+                    return true;
+                }
             }
-            else if (Board.GetPiece(moveTo) is not Empty && Board.GetPieceColor(moveTo) == PlayerTurnColor)
-                PlayTurn(moveTo);
-            else
-                PlayTurn();
+            return false;
         }
 
-        private void SetAvailableMoves()
+        private bool SetAvailableMoves()
         {
             if (Board.OnSelectedPiece() is not Empty && Board.OnSelectedPiece().Color == PlayerTurnColor && Board.OnSelectedPosition() != null)
             {
@@ -208,10 +203,10 @@ namespace Source
                 if (AvailableCount > 0)
                 {
                     ShowLegalMoves(AvailableMoves);
-                    return;
+                    return true;
                 }
             }
-            PlayTurn();
+            return false;
         }
 
         private GameState GetState()
@@ -222,7 +217,7 @@ namespace Source
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
-                    if (Board.GetPieceColor(i, j) == PlayerTurnColor && Board.GetPiece(i,j) is not Empty)
+                    if (Board.GetPieceColor(i, j) == PlayerTurnColor && Board.GetPiece(i, j) is not Empty)
                     {
                         Board.SelectPiece(i, j);
                         bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
