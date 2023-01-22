@@ -78,6 +78,8 @@ namespace Source
                             ((King)Board.OnSelectedPiece()).KingsideCastle();
                         else if (Board.OnSelectedPosition().Y - 2 == moveTo.Y)
                             ((King)Board.OnSelectedPiece()).QueensideCastle();
+                        else
+                            Board.MoveOnSelectedPiece(moveTo);
                     }
                     else
                         Board.MoveOnSelectedPiece(moveTo);
