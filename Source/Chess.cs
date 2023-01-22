@@ -11,8 +11,6 @@ namespace Source
         private GameState State { get; set; }
         private ChessColor PlayerTurnColor { get; set; }
 
-        private bool IsDraw { get; set; }
-
         public Chess()
         {
             Board = new Board();
@@ -30,7 +28,8 @@ namespace Source
         private void EndTurn()
         {
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
-            setGameState();
+
+            State = GetState();
             Update();
             Board.DeselectPiece();
         }
@@ -73,10 +72,6 @@ namespace Source
                 Board.SelectPiece(selectPiece);
 
             SetAvailableMoves();
-
-            if (AvailableCount == 0)
-                PlayTurn();
-
             Position moveTo = MoveInput();
 
             if (AvailableMoves[moveTo.X, moveTo.Y] == true)
@@ -94,26 +89,22 @@ namespace Source
                 Board.OnSelectedPiece().MoveCount++;
             }
             else if (Board.GetPiece(moveTo) is not Empty && Board.GetPieceColor(moveTo) == PlayerTurnColor)
-            {
                 PlayTurn(moveTo);
-            }
             else
-            {
                 PlayTurn();
-            }
         }
 
         private void SetAvailableMoves()
         {
             if (Board.OnSelectedPiece() is not Empty && Board.OnSelectedPiece().Color == PlayerTurnColor && Board.OnSelectedPosition() != null)
             {
-
                 bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
                 Position kingPos = Board.GetKingPosition(PlayerTurnColor);
                 Position pos = Board.OnSelectedPosition();
                 bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
 
                 for (int i = 0; i < 8; i++)
+                {
                     for (int j = 0; j < 8; j++)
                         if (Board.OnSelectedPiece() is King)
                         {
@@ -212,6 +203,8 @@ namespace Source
                             if (captured)
                                 Board.RestoreCapturedPiece(i, j);
                         }
+                }
+
                 if (AvailableCount > 0)
                 {
                     ShowLegalMoves(AvailableMoves);
@@ -221,7 +214,7 @@ namespace Source
             PlayTurn();
         }
 
-        private GameState setGameState()
+        private GameState GetState()
         {
             Position kingPos = Board.GetKingPosition(PlayerTurnColor);
             bool[,] opponentMoves = Board.GetAllOpponentMoves(PlayerTurnColor);
@@ -229,15 +222,12 @@ namespace Source
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
-                {
-                    if (Board.GetPieceColor(i, j) == PlayerTurnColor)
+                    if (Board.GetPieceColor(i, j) == PlayerTurnColor && Board.GetPiece(i,j) is not Empty)
                     {
                         Board.SelectPiece(i, j);
                         bool[,] unfilteredMoves = Board.OnSelectedPieceMoves();
                         for (int row = 0; row < unfilteredMoves.GetLength(0); row++)
-                        {
                             for (int col = 0; col < unfilteredMoves.GetLength(1); col++)
-                            {
                                 if (Board.OnSelectedPiece() is King && unfilteredMoves[row, col] == true)
                                 {
                                     bool captured = Board.GetPiece(row, col) is not Empty;
@@ -272,16 +262,15 @@ namespace Source
                                     if (captured)
                                         Board.RestoreCapturedPiece(row, col);
                                 }
-                            }
-                        }
                     }
+            }
 
-                }
-                if (AvailableCount == 0)
-                    if (opponentMoves[kingPos.X, kingPos.Y] == true)
-                        return GameState.Checkmate;
-                    else
-                        return GameState.Draw;
+            if (AvailableCount == 0)
+            {
+                if (opponentMoves[kingPos.X, kingPos.Y] == true)
+                    return GameState.Checkmate;
+                else
+                    return GameState.Draw;
             }
             return GameState.Running;
         }
