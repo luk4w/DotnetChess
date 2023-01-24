@@ -26,10 +26,6 @@ namespace Source
 
         private void EndTurn()
         {
-            // Remove last en passant position
-            if (Board.GetLastEnPassantPosition().X != 0 && Board.GetLastEnPassantColor() != PlayerTurnColor)
-                Board.RemoveLastEnPassant();
-
             PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             State = GetState();
             Update();
@@ -100,7 +96,11 @@ namespace Source
                             Board.CaptureEnPassant(moveTo);
                         }
                         else
+                        {
                             Board.MoveOnSelectedPiece(moveTo);
+                            Board.RemoveLastEnPassant();
+
+                        }
                     }
                     else
                         Board.MoveOnSelectedPiece(moveTo);
