@@ -26,8 +26,11 @@ namespace Source
 
         private void EndTurn()
         {
-            PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
+            // Remove last en passant position
+            if (Board.GetLastEnPassantPosition().X != 0 && Board.GetLastEnPassantColor() != PlayerTurnColor)
+                Board.RemoveLastEnPassant();
 
+            PlayerTurnColor = PlayerTurnColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
             State = GetState();
             Update();
             Board.DeselectPiece();
@@ -38,7 +41,7 @@ namespace Source
             Update();
             while (State == GameState.Running)
             {
-                if (IsPlayerTurn())
+                if (IsPlayedTurn())
                     EndTurn();
             }
 
@@ -58,7 +61,7 @@ namespace Source
             UpdateBoard();
         }
 
-        private bool IsPlayerTurn()
+        private bool IsPlayedTurn()
         {
             Array.Clear(AvailableMoves);
             AvailableCount = 0;
@@ -78,6 +81,24 @@ namespace Source
                             ((King)Board.OnSelectedPiece()).KingsideCastle();
                         else if (Board.OnSelectedPosition().Y - 2 == moveTo.Y)
                             ((King)Board.OnSelectedPiece()).QueensideCastle();
+                        else
+                            Board.MoveOnSelectedPiece(moveTo);
+                    }
+                    else if (Board.OnSelectedPiece() is Pawn)
+                    {
+                        int dir = PlayerTurnColor == ChessColor.White ? -1 : 1;
+                        int right = Board.OnSelectedPosition().Y + 1;
+                        int left = Board.OnSelectedPosition().Y - 1;
+
+                        if (moveTo.X == Board.OnSelectedPosition().X + (dir * 2))
+                        {
+                            Board.MoveOnSelectedPiece(moveTo);
+                            Board.SetEnPassant(moveTo);
+                        }
+                        else if (Board.GetLastEnPassantPosition().X != 0 && Board.GetLastEnPassantColor() != PlayerTurnColor && moveTo.Y == Board.GetLastEnPassantPosition().Y)
+                        {
+                            Board.CaptureEnPassant(moveTo);
+                        }
                         else
                             Board.MoveOnSelectedPiece(moveTo);
                     }

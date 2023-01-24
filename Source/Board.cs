@@ -13,7 +13,7 @@ namespace Source
         private Piece LastRemovedPiece;
         private Position SelectedPosition;
         private Position[] KingPositions;
-
+        private Position LastEnPasantPos;
         public Board()
         {
             Matrix = new Piece[8, 8];
@@ -24,10 +24,33 @@ namespace Source
             LastRemovedPiece = EmptySquare;
             KingPositions = new Position[2] { new Position(7, 4), new Position(0, 4) };
             SelectedPosition = new Position(8, 8); // Overflow initial position
+            LastEnPasantPos = new Position(0, 0);
         }
 
         public Piece OnSelectedPiece() => SelectedPiece;
         public Position OnSelectedPosition() => SelectedPosition;
+
+        public void SetEnPassant(Position pos)
+        {
+            ((Pawn)GetPiece(pos)).EnPassant = true;
+            LastEnPasantPos = pos;
+        }
+        public void RemoveLastEnPassant()
+        {
+            if(GetPiece(LastEnPasantPos) is Pawn)
+                ((Pawn)GetPiece(LastEnPasantPos)).EnPassant = false;
+            LastEnPasantPos = new Position(0, 0);
+        }
+
+        public Position GetLastEnPassantPosition() => LastEnPasantPos;
+
+        public ChessColor GetLastEnPassantColor() => Matrix[LastEnPasantPos.X, LastEnPasantPos.Y].Color;
+        public void CaptureEnPassant(Position moveTo)
+        {
+            CapturedPieceList.Add(GetPiece(LastEnPasantPos));
+            MoveOnSelectedPiece(moveTo);
+            RemovePiece(LastEnPasantPos.X, LastEnPasantPos.Y);
+        }
 
         public void SelectPiece(int row, int col)
         {
@@ -82,9 +105,9 @@ namespace Source
                         bool[,] temp;
 
                         if (GetPiece(i, j) is Pawn)
-                            temp = ((Pawn)GetPiece(i, j)).GetAttackMoves(i,j);
+                            temp = ((Pawn)GetPiece(i, j)).GetAttackMoves(i, j);
                         else
-                            temp = GetPieceMoves(i,j);
+                            temp = GetPieceMoves(i, j);
 
                         // Merge
                         for (int row = 0; row < 8; row++)
@@ -111,6 +134,7 @@ namespace Source
         }
 
         private void RemovePiece(int row, int col) => Matrix[row, col] = EmptySquare;
+        
 
         public void MoveOnSelectedPiece(Position to)
         {
