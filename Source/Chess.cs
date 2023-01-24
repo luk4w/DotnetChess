@@ -89,17 +89,17 @@ namespace Source
                         if (moveTo.X == Board.OnSelectedPosition().X + (dir * 2))
                         {
                             Board.MoveOnSelectedPiece(moveTo);
-                            Board.SetEnPassant(moveTo);
+                            Board.AddEnPassant(moveTo);
                         }
-                        else if (Board.GetLastEnPassantPosition().X != 0 && Board.GetLastEnPassantColor() != PlayerTurnColor && moveTo.Y == Board.GetLastEnPassantPosition().Y)
+                       else if (Board.GetLastEnPassantPosition().X != 0 && Board.GetLastEnPassantColor() != PlayerTurnColor && moveTo.Y == Board.GetLastEnPassantPosition().Y)
                         {
                             Board.CaptureEnPassant(moveTo);
                         }
                         else
                         {
                             Board.MoveOnSelectedPiece(moveTo);
-                            Board.RemoveLastEnPassant();
-
+                            if (Board.GetLastEnPassantPosition().X != 0)
+                                Board.RemoveLastEnPassant();
                         }
                     }
                     else

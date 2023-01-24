@@ -30,7 +30,7 @@ namespace Source
         public Piece OnSelectedPiece() => SelectedPiece;
         public Position OnSelectedPosition() => SelectedPosition;
 
-        public void SetEnPassant(Position pos)
+        public void AddEnPassant(Position pos)
         {
             ((Pawn)GetPiece(pos)).EnPassant = true;
             LastEnPasantPos = pos;
