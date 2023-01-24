@@ -1,6 +1,11 @@
 # DotnetChess
 This is a chess game built using C# and the .NET framework.
 
+## Features
+- 2 player local multiplayer.
+- Enforces all standard chess rules.
+- Available squares highlighting.
+
 ## Requirements
 - Windows operating system.
 - .NET Framework 4.7 or higher.
