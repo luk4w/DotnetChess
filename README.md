@@ -1,4 +1,7 @@
 # DotnetChess
+
+![Knight](https://github.com/luk4w/DotnetChess/blob/master/Screenshots/knight.png)
+
 This is a chess game built using C# and the .NET framework.
 
 ## Features
